@@ -1,149 +1,70 @@
-import { Telegraf } from "telegraf";
-import fs from "fs";
-import axios from "axios";
-import path from "path";
-import request from "request";
+const { Telegraf } = require("telegraf");
 
-const documentsDirectory = "documents";
+const { TelegramClient, Api } = require("telegram");
+const { StringSession } = require("telegram/sessions");
 
-if (!fs.existsSync(documentsDirectory)) {
-  fs.mkdirSync(documentsDirectory);
-}
-
-const botInfo = {
-  token: "2115555272:AAFMCjNU-QAGIOu6ravWUykQy9wRxFTPMz4",
+const appInfo = {
+  id: 12217976,
+  hash: "77c370d62cf65047ff0dc0b1ec7d6734",
+  session: new StringSession(
+    "1AgAOMTQ5LjE1NC4xNjcuNTEBuwONvCOLVLVwXRYw+9UpXpJba4M/hRhqdnvAIn+qUKTEczhpIk6xHeV76gIHm0DpuG4f53/hapm5XBSvUIZ2TXiIfpFOBbNZ/vuBeMSaXz0LTVJk1jo+gjlwcpm2tSOTqDXQkkgA8cZEpTNJ//Oiotopvrt+uDI9Ovx9dACEDKRxSw9kLXAZiTLZxpGe2bNxKWr/fbm8JETxLrFNq/83ljMVKbQEPKJYbvZzU0KtEn0pvdETQkSD6vcWpkqisjNl4I2G2xf6+brQY6JppvxHPrzzLQVlm8QdJE5W4s+BRwLWUstzkzU/KG2zN+n1Ldx2+b0rEFVgWjDk7aAbaMrYyaw="
+  ),
 };
 
-const chatInfo = {
-  id: -1001768859093,
+const botInfo = {
+  token: "5036842883:AAFxJ1V2dfUnUv42QgYa4h_MeKY1mIgCTJo",
 };
 
 const bot = new Telegraf(botInfo.token);
 
-const descriptions = {
-  shortWelcome: "Добро пожаловать",
-  welcomeText: "Здравствуйте, бот предназначен для отправки ДЗ",
-  usernameRequired:
-    "Сначала задайте себе юзернейм в профиле, потом снова попробуйте сделать /start ",
-};
+const { id, session, hash } = appInfo;
 
-bot.start(async (ctx) => {
-  ctx.reply(descriptions.welcomeText);
+const client = new TelegramClient(session, id, hash, {});
 
-  if (!ctx.from.username) {
-    ctx.reply(descriptions.usernameRequired);
-    return;
-  }
+(async () => {
+  await client.connect();
+})();
 
-  ctx.reply(descriptions.shortWelcome);
+bot.on("message", async (ctx) => {
+  const chatId = ctx.chat.id;
 
-  const { id, username, last_name, first_name } = ctx.from;
+  const messages = await getMessageHistory(chatId);
+  console.log(messages);
+  const { message_id, text } = ctx.message;
 
-  const users = await getAllUsers();
+  const words = text?.split(" ").map((word) => word.toLowerCase());
 
-  const user = {
-    fullName: `${first_name} ${last_name}`,
-    username,
-    id,
-  };
+  let messageIndex = -1;
 
-  fs.writeFile("users.txt", JSON.stringify([user, ...users]), (err) => {
-    if (err) {
-      console.log(err);
-    }
-  });
-});
-
-bot.on("text", (ctx) => {
-  const reply = ctx.message.reply_to_message;
-
-  const admins = ["habibaaslonova", "mav3un", "Zebo2404", "ainizoda"];
-  const isAdmin = admins.indexOf(ctx.message.from.username) > -1;
-
-  if (!isAdmin) {
-    bot.telegram.sendMessage(
-      chatInfo.id,
-      `@${ctx.from.username}: ${ctx.message.text}`
-    );
-  }
-
-  if (reply) {
-    if (isAdmin) {
-      const { text } = reply;
-
-      const username =
-        text.indexOf("@") !== 0
-          ? text.slice(text.lastIndexOf("@") + 1)
-          : text.slice(1, text.indexOf(":"));
-
-      if (text.indexOf("@") > -1) {
-        sendMessageToUser(username, ctx.message.text);
+  for (let i = 0; i < words?.length; i++) {
+    for (let j = 1; j < messages?.length; j++) {
+      if (messages[j].toLowerCase().includes(words[i])) {
+        messageIndex = j;
+        console.log("found");
+        break;
       }
-
-      return;
-    } else {
-      console.log("user");
     }
   }
-});
 
-bot.on("document", async (msg) => {
-  const fileId = msg.update.message.document.file_id;
-  const request = await axios.get(
-    `https://api.telegram.org/bot${botInfo.token}/getFile?file_id=${fileId}`
-  );
-
-  const filePath = request.data.result.file_path;
-  const { from } = msg;
-
-  const downloadURL = `https://api.telegram.org/file/bot${botInfo.token}/${filePath}`;
-
-  const fullFilePath = path.join(
-    documentsDirectory,
-    `${fileId}${filePath.slice(filePath.lastIndexOf("."))}`
-  );
-
-  downloadFile(downloadURL, fullFilePath, () => {
-    sendFile(fullFilePath, chatInfo.id, from);
-
-    console.log("Done!");
-  });
-});
-
-const downloadFile = (url, path, callback) => {
-  request.head(url, (err, res, body) => {
-    request(url).pipe(fs.createWriteStream(path)).on("close", callback);
-  });
-};
-
-const sendFile = (filePath, chatId, from) => {
-  bot.telegram.sendMessage(
-    chatId,
-    `Файл отправил(-а): ${from.first_name} | @${from.username}`
-  );
-
-  bot.telegram.sendDocument(chatId, { source: filePath });
-};
-
-const getAllUsers = () => {
-  return new Promise((res) => {
-    fs.readFile("users.txt", (err, data) => {
-      if (err) {
-        console.log(err);
-        return;
-      }
-      res(JSON.parse(data));
+  if (messageIndex > -1 && messages[messageIndex - 1]?.length > 0) {
+    ctx.reply(messages[messageIndex - 1], {
+      reply_to_message_id: message_id,
     });
-  });
-};
+  }
+});
 
-const sendMessageToUser = async (username, message) => {
-  const users = await getAllUsers();
+const getMessageHistory = async (chatId) => {
+  const result = await client.invoke(
+    new Api.messages.GetHistory({
+      peer: `${chatId}`,
+    })
+  );
 
-  const user = users.find((usr) => usr.username === username);
-  const { id } = user;
+  const parsed = await result.messages
+    .filter((m) => m.message)
+    .map((mes) => mes.message);
 
-  bot.telegram.sendMessage(id, message);
+  return Array.from(new Set(parsed));
 };
 
 bot.launch();
