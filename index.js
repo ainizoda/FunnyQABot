@@ -5,7 +5,6 @@ const { getMessages, addMessage } = require("./db/messages");
 const { NewMessage } = require("telegram/events");
 const { configuredClient } = require("./services/client");
 
-
 const bot = require("./bot");
 
 let client;
@@ -40,10 +39,6 @@ function getPrevMessage(history) {
   }
 
   return prevMessage;
-}
-
-function getNextMessage() {
-  
 }
 
 async function handleSaveToDataBase(event) {
