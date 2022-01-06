@@ -2,7 +2,7 @@ const knex = require("./knex");
 
 const messages = knex("messages");
 
-const addMessage = (message) => {
+const addMessage = async (message) => {
   return messages.insert(message);
 };
 

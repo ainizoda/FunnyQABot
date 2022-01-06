@@ -1,12 +1,12 @@
 const { StringSession } = require("telegram/sessions");
 
 const appInfo = {
-  id: 12217976,
-  hash: "77c370d62cf65047ff0dc0b1ec7d6734",
+  id: 9340318,
+  hash: "2abea16b0879ba1dff2eee3f3a6470da",
   session: new StringSession(
-    "1AgAOMTQ5LjE1NC4xNjcuNTEBuwONvCOLVLVwXRYw+9UpXpJba4M/hRhqdnvAIn+qUKTEczhpIk6xHeV76gIHm0DpuG4f53/hapm5XBSvUIZ2TXiIfpFOBbNZ/vuBeMSaXz0LTVJk1jo+gjlwcpm2tSOTqDXQkkgA8cZEpTNJ//Oiotopvrt+uDI9Ovx9dACEDKRxSw9kLXAZiTLZxpGe2bNxKWr/fbm8JETxLrFNq/83ljMVKbQEPKJYbvZzU0KtEn0pvdETQkSD6vcWpkqisjNl4I2G2xf6+brQY6JppvxHPrzzLQVlm8QdJE5W4s+BRwLWUstzkzU/KG2zN+n1Ldx2+b0rEFVgWjDk7aAbaMrYyaw="
+    "1AgAOMTQ5LjE1NC4xNjcuNTEBu26pJ7P/yqwtx3ffigof465sf2/AFeJMpq7IoSpfesshk21e4QMG3kxsBV67YNAQcRWFXvKSmUQaHkBUfudsbIHxl00Eg9vx8SH9v7IyN09rL2K0ngL/e56UNCxJADjcp1A2dL6mZV+ivEPFzAB7GqwqurXXkIIkgbwYHclcev4XqvoAsH29Qgt7cR709zzTI/yWd9ocG/0ysrm1jEMpi0AHopaD7tcHpJWmJoZoXKLtYXMyzwzRI3ixtNLzLHrRXXqodidkw7trGrwMcIDkfPVcy07QUUL+VMelR4lC4aRbWCuGacq6eeFUtcqp3lVXY8wkEWrtYY5USjKG3shHeHE="
   ),
-  myUserId: 1815820145,
+  myUserId: 1,
 };
 
 const botInfo = {
