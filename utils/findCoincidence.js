@@ -12,11 +12,8 @@ module.exports = function findCoincidence(str1, str2) {
 
   let conciedence = 0;
 
-  for (let i = 0; i < str1.length; i++) {
-    if (str2.indexOf(str1[i]) > -1) {
-      conciedence++;
-    }
-  }
+  for (let i = 0; i < str1.length; i++)
+    if (str2.indexOf(str1[i]) > -1) conciedence++;
 
   return conciedence;
 };

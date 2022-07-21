@@ -1,11 +1,12 @@
 const { Api } = require("telegram");
 
-const { getMessages, addMessage } = require("./db/messages");
+const { addMessage } = require("./db/messages");
 
 const { NewMessage } = require("telegram/events");
 const { configuredClient } = require("./services/client");
 
 const bot = require("./bot");
+const input = require("input");
 
 let client;
 
@@ -14,7 +15,13 @@ let client;
 
   client.addEventHandler(handleSaveToDataBase, new NewMessage({}));
 
-  await client.connect();
+  await client.start({
+    phoneNumber: async () => await input.text("Please enter your number: "),
+    password: async () => await input.text("Please enter your password: "),
+    phoneCode: async () =>
+      await input.text("Please enter the code you received: "),
+    onError: (err) => console.log(err),
+  });
 })();
 
 async function getChatHistory(chatPeer) {
@@ -27,6 +34,7 @@ async function getChatHistory(chatPeer) {
 
 function getPrevMessage(history) {
   let prevMessage;
+
   let userId = history.messages[0].fromId.userId.value;
 
   let { messages } = history;
@@ -43,6 +51,7 @@ function getPrevMessage(history) {
 
 async function handleSaveToDataBase(event) {
   const chatHistory = await getChatHistory(event.message.peerId);
+
   const messageReply = event.message.originalArgs.replyTo;
 
   let replyText;
